@@ -6,6 +6,7 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.document_loaders import PyPDFLoader, DirectoryLoader
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain.retrievers import BM25Retriever, EnsembleRetriever
+import dill
 
 
 load_dotenv(find_dotenv())
@@ -41,15 +42,19 @@ def run_db_build():
     vectorstore = SingleStoreDB.from_documents(
         texts, embeddings, distance_strategy="DOT_PRODUCT", table_name="demo0"
     )
-    retriever_vectordb = vectorstore.as_retriever(search_kwargs={"k": 2})
+    # retriever_vectordb = vectorstore.as_retriever(search_kwargs={"k": 2})
 
     keyword_retriever = BM25Retriever.from_documents(texts)
     keyword_retriever.k = 2
 
-    ensemble_retriever = EnsembleRetriever(
-        retrievers=[retriever_vectordb, keyword_retriever], weights=[0.5, 0.5]
-    )
-    return ensemble_retriever
+    # ensemble_retriever = EnsembleRetriever(
+    #     retrievers=[retriever_vectordb, keyword_retriever], weights=[0.5, 0.5]
+    # )
+
+    with open("keyword_retriever.pkl", "wb") as f:
+        dill.dump(keyword_retriever, f)
+
+    # return ensemble_retriever
 
 
 if __name__ == "__main__":

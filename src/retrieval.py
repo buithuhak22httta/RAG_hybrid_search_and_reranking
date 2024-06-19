@@ -12,6 +12,8 @@ from langchain_community.llms.huggingface_hub import HuggingFaceHub
 from langchain_community.chat_models.openai import ChatOpenAI
 from langchain.retrievers import ContextualCompressionRetriever
 from langchain.retrievers.document_compressors import CohereRerank
+import dill
+from langchain.retrievers import BM25Retriever, EnsembleRetriever
 
 
 def set_qa_prompt():
@@ -60,8 +62,18 @@ def setup_dbqa():
         model_name="sentence-transformers/all-MiniLM-L6-v2",
         model_kwargs={"device": "cpu"},
     )
+    # with open("keyword_retriever_table.pkl", "rb") as f:
+    with open("keyword_retriever.pkl", "rb") as f:
+        keyword_retriever = dill.load(f)
     vectorstore = SingleStoreDB(
-        embeddings, distance_strategy="DOT_PRODUCT", table_name="demo0"
+        embeddings,
+        distance_strategy="DOT_PRODUCT",
+        table_name="demo0",
+        # table_name="demo0_table",
+    )
+    retriever_vectordb = vectorstore.as_retriever(search_kwargs={"k": 2})
+    ensemble_retriever = EnsembleRetriever(
+        retrievers=[retriever_vectordb, keyword_retriever], weights=[0.5, 0.5]
     )
 
     if MODEL_TYPE == "no_OpenAI":
@@ -78,7 +90,7 @@ def setup_dbqa():
     #     model_kwargs={"temperature": 0.5, "max_new_tokens": 512},
     #     huggingfacehub_api_token="",
     # )
-    ensemble_retriever = run_db_build()
+    # ensemble_retriever = run_db_build()
     compressor = CohereRerank(cohere_api_key=COHERE_API_KEY)
     if RERANKING == "yes":
         compression_retriever = ContextualCompressionRetriever(

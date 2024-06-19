@@ -2,9 +2,11 @@ from urllib import response
 import timeit
 import argparse
 from src.retrieval import setup_dbqa
+from src.db_build import run_db_build
 
 
 if __name__ == "__main__":
+    # run_db_build()
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "input",

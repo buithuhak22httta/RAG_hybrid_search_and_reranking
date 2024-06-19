@@ -16,7 +16,7 @@ def query_dbqa(user_input):
     source_texts = []
     for i, doc in enumerate(source_docs):
         source_text = f"\nSource Document {i+1}\n"
-        source_text += f"Source Text: {doc.page_content}\n"
+        # source_text += f"Source Text: {doc.page_content}\n"
         source_text += f'Document Name: {doc.metadata["source"]}\n'
         source_text += f'Page Number: {doc.metadata["page"]}\n'
         source_text += "=" * 60
